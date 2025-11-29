@@ -43,11 +43,21 @@
     </script>
 
     <style>
+        /* CORRECCIÓN MÓVIL: Fondo infinito Anti-Rebote */
+        html {
+            background-color: #090A0F; /* Color exacto del final del degradado */
+            height: 100%;
+            overscroll-behavior-y: none; /* Evita el efecto rebote en navegadores modernos */
+        }
+
         body {
             background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            background-attachment: fixed; /* Fondo fijo al hacer scroll */
+            background-size: cover;
+            min-height: 100%;
             overflow-x: hidden;
             color: white;
-            min-height: 100vh;
+            margin: 0;
         }
 
         .star {
@@ -72,19 +82,18 @@
             border: 2px solid #a16207;
         }
         
-        /* Borde interior decorativo */
         .image-frame::after {
             content: '';
             position: absolute;
             inset: 0;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            pointer-events: none; /* Importante para dejar pasar clicks a la imagen */
+            pointer-events: none;
             border-radius: 6px;
             z-index: 20;
         }
     </style>
 </head>
-<body class="font-body flex flex-col items-center justify-center py-8 px-4">
+<body class="font-body flex flex-col items-center justify-center py-8 px-4 relative">
 
     <!-- Fondo de estrellas -->
     <div id="stars-container" class="fixed inset-0 pointer-events-none z-0"></div>
@@ -95,10 +104,6 @@
         <article class="magic-glass rounded-2xl p-6 md:p-8 text-center border-t-4 border-t-gold-dark/50">
             
             <!-- 1. IMAGEN CENTRAL -->
-            <!-- 
-                 NOTA: El div 'overlay-gradient' tiene pointer-events-none.
-                 Esto permite que en iPhone puedas mantener pulsada la imagen para "Guardar en Fotos".
-            -->
             <div class="image-frame mx-auto mb-6 w-full max-w-[300px] aspect-[3/4] bg-disney-blue relative group cursor-zoom-in" onclick="openLightbox()">
                 
                 <!-- ⬇️⬇️⬇️ CAMBIAR IMAGEN AQUÍ (Pega tu enlace dentro de src="") ⬇️⬇️⬇️ -->
@@ -110,10 +115,8 @@
                 >
                 <!-- ⬆️⬆️⬆️ FIN DE CAMBIAR IMAGEN ⬆️⬆️⬆️ -->
 
-                <!-- Brillo decorativo (No bloquea el click gracias a pointer-events-none) -->
                 <div class="overlay-gradient absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none z-20"></div>
                 
-                <!-- Icono de lupa pequeño -->
                 <div class="absolute bottom-2 right-2 text-white/70 z-30 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
@@ -121,13 +124,8 @@
                 </div>
             </div>
 
-            <!-- 2. TEXTO UNIFICADO (Estilo Título, Tamaño Cuerpo) -->
-            <!-- Si no quieres texto, puedes borrar todo este div "content-text" -->
+            <!-- 2. TEXTO UNIFICADO -->
             <div id="content-text" class="mt-6 px-2">
-                <!-- 
-                    Se aplica la tipografía 'font-magic' y el degradado dorado.
-                    El tamaño se mantiene contenido con 'text-lg md:text-xl'.
-                -->
                 <div class="font-magic text-lg md:text-xl leading-relaxed text-transparent bg-clip-text bg-gradient-to-r from-gold-light via-yellow-200 to-gold-dark drop-shadow-sm">
                     <!-- Escribe tu mensaje aquí abajo. -->
                     <p>
@@ -148,20 +146,17 @@
 
     </main>
 
-    <!-- LIGHTBOX (Ventana Modal para ver imagen grande) -->
+    <!-- LIGHTBOX -->
     <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0" onclick="closeLightbox()">
         
-        <!-- Botón cerrar -->
         <button class="absolute top-4 right-4 text-white/60 hover:text-white p-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
 
-        <!-- Imagen Grande -->
         <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] rounded shadow-[0_0_30px_rgba(253,224,71,0.2)] object-contain" onclick="event.stopPropagation()">
         
-        <!-- Botón Descargar -->
         <a id="download-btn" href="#" download="imagen-magica.jpg" class="mt-6 px-6 py-2 bg-gold-dark text-white rounded-full font-magic text-sm hover:bg-yellow-600 transition flex items-center gap-2" onclick="event.stopPropagation()">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -171,7 +166,6 @@
     </div>
 
     <script>
-        // --- Estrellas de fondo ---
         function createStars() {
             const container = document.getElementById('stars-container');
             const starCount = 60;
@@ -194,20 +188,15 @@
             }
         }
 
-        // --- Lógica del Lightbox (Zoom) ---
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const mainImg = document.getElementById('main-image');
         const downloadBtn = document.getElementById('download-btn');
 
         function openLightbox() {
-            // Copiar la fuente de la imagen principal al lightbox
             lightboxImg.src = mainImg.src;
             downloadBtn.href = mainImg.src;
-            
-            // Mostrar lightbox
             lightbox.classList.remove('hidden');
-            // Pequeño delay para permitir que la transición CSS funcione
             setTimeout(() => {
                 lightbox.classList.remove('opacity-0');
             }, 10);
@@ -223,5 +212,4 @@
         document.addEventListener('DOMContentLoaded', createStars);
     </script>
 </body>
-
 </html>
