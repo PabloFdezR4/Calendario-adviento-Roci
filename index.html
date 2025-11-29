@@ -118,7 +118,7 @@
     <div id="stars-container" class="fixed inset-0 pointer-events-none z-0"></div>
 
     <!-- Contenido Principal -->
-    <div class="relative z-10 container mx-auto px-4 py-8 pb-20">
+    <div class="relative z-10 container mx-auto px-4 py-8 pb-10">
         
         <!-- Header -->
         <header class="text-center mb-10 animate-float">
@@ -126,26 +126,45 @@
                 Diciembre Mágico
             </h1>
             <p class="text-blue-200 text-lg font-light tracking-widest uppercase">Cuenta atrás para la Navidad</p>
-            
-            <!-- Control de Demo (Solo para visualización) -->
-            <div class="mt-4 inline-block bg-black/50 px-4 py-2 rounded-full text-xs text-gray-400 border border-gray-700">
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" id="demoMode" class="form-checkbox text-gold-dark rounded bg-transparent" checked>
-                    <span>Modo Demo (Simular que es 10 Dic)</span>
-                </label>
-            </div>
         </header>
 
         <!-- Grid del Calendario -->
         <!-- Móvil: 1 columna. Tablet: 3 columnas. Desktop: 6 columnas (6x4=24) -->
-        <div id="calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-7xl mx-auto">
+        <div id="calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-7xl mx-auto mb-12">
             <!-- Las tarjetas se generan aquí con JS -->
+        </div>
+
+        <!-- Área de Desarrollador (Protegida) -->
+        <div class="text-center mt-12 mb-4 relative z-20">
+            <!-- Botón discreto para abrir panel -->
+            <button id="dev-trigger" onclick="toggleDevPanel()" class="text-[10px] text-gray-600 hover:text-gold-dark uppercase tracking-widest transition-colors">
+                🔒 Acceso Desarrollador
+            </button>
+
+            <!-- Panel de Contraseña -->
+            <div id="dev-panel" class="hidden mt-3 transition-all duration-300">
+                <div class="inline-flex items-center bg-black/60 border border-gold-dark/30 rounded-lg p-1 backdrop-blur-md">
+                    <input type="password" id="dev-password" placeholder="Contraseña..." 
+                           class="bg-transparent text-gold-light text-sm px-2 py-1 focus:outline-none w-32 placeholder-gray-500">
+                    <button onclick="checkDevPassword()" class="bg-gold-dark hover:bg-yellow-600 text-white text-xs px-3 py-1.5 rounded-md font-bold transition-colors ml-2">
+                        Desbloquear
+                    </button>
+                </div>
+                <p id="dev-error" class="text-red-400 text-xs mt-2 hidden">Buena suerte Roci</p>
+            </div>
+
+            <!-- Indicador de Modo Activado -->
+            <div id="dev-active-indicator" class="hidden mt-2">
+                <span class="text-xs text-gold-light bg-gold-dark/20 px-3 py-1 rounded-full border border-gold-dark/50 animate-pulse">
+                    ✨ Modo Desarrollador: Todo Desbloqueado ✨
+                </span>
+            </div>
         </div>
 
     </div>
 
     <!-- Footer -->
-    <footer class="text-center py-6 text-blue-400/60 text-sm font-magic relative z-10">
+    <footer class="text-center py-6 text-blue-400/60 text-sm font-magic relative z-10 border-t border-white/5 mx-auto max-w-xl">
         <p>&copy; 2024 Magic Advent Calendar. Created with Pixie Dust.</p>
     </footer>
 
@@ -153,7 +172,9 @@
         // --- Configuración ---
         const totalDays = 24;
         const grid = document.getElementById('calendar-grid');
-        const demoCheckbox = document.getElementById('demoMode');
+        
+        // Estado del modo desarrollador
+        let isDevMode = false;
 
         // Función para generar estrellas de fondo aleatorias
         function createStars() {
@@ -192,6 +213,51 @@
             </svg>
         `;
 
+        // --- Lógica del Modo Desarrollador ---
+        function toggleDevPanel() {
+            const panel = document.getElementById('dev-panel');
+            panel.classList.toggle('hidden');
+            // Foco automático al abrir
+            if (!panel.classList.contains('hidden')) {
+                document.getElementById('dev-password').focus();
+            }
+        }
+
+        function checkDevPassword() {
+            const input = document.getElementById('dev-password');
+            const errorMsg = document.getElementById('dev-error');
+            const panel = document.getElementById('dev-panel');
+            const trigger = document.getElementById('dev-trigger');
+            const activeIndicator = document.getElementById('dev-active-indicator');
+
+            if (input.value === '3747191221') {
+                // Contraseña correcta
+                isDevMode = true;
+                errorMsg.classList.add('hidden');
+                
+                // Ocultar formulario y mostrar indicador
+                panel.classList.add('hidden');
+                trigger.classList.add('hidden');
+                activeIndicator.classList.remove('hidden');
+
+                // Re-renderizar calendario
+                renderCalendar();
+            } else {
+                // Contraseña incorrecta
+                errorMsg.classList.remove('hidden');
+                // Vibración visual simple
+                input.classList.add('border-red-500');
+                setTimeout(() => input.classList.remove('border-red-500'), 500);
+            }
+        }
+
+        // Permitir Enter en el input de contraseña
+        document.getElementById('dev-password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkDevPassword();
+            }
+        });
+
         // Lógica principal
         function renderCalendar() {
             grid.innerHTML = ''; // Limpiar
@@ -200,10 +266,10 @@
             let currentDay = now.getDate();
             let currentMonth = now.getMonth(); // 0 = Enero, 11 = Diciembre
 
-            // Lógica de simulación (Demo Mode)
-            if (demoCheckbox.checked) {
+            // Si el modo desarrollador está activo, forzamos fecha 25 de Diciembre
+            if (isDevMode) {
                 currentMonth = 11; // Diciembre
-                currentDay = 10;   // Simulamos que es el día 10
+                currentDay = 25;   // Día 25 para ver todo abierto
             }
 
             for (let i = 1; i <= totalDays; i++) {
@@ -254,9 +320,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             createStars();
             renderCalendar();
-
-            // Re-renderizar si cambian el modo demo
-            demoCheckbox.addEventListener('change', renderCalendar);
         });
 
     </script>
