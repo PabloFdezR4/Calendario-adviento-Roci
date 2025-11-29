@@ -265,27 +265,40 @@
             const now = new Date();
             let currentDay = now.getDate();
             let currentMonth = now.getMonth(); // 0 = Enero, 11 = Diciembre
+            let currentHour = now.getHours();  // Hora actual (0-23)
 
-            // Si el modo desarrollador está activo, forzamos fecha 25 de Diciembre
+            // Si el modo desarrollador está activo, forzamos simulación de Navidad
             if (isDevMode) {
                 currentMonth = 11; // Diciembre
-                currentDay = 25;   // Día 25 para ver todo abierto
+                currentDay = 25;   // Todo abierto
+                currentHour = 12;  // Hora irrelevante
             }
 
             for (let i = 1; i <= totalDays; i++) {
-                // Determinar si está desbloqueado
-                // Se desbloquea si es Diciembre (mes 11) Y el día actual es >= al número de la casilla
-                const isDecember = currentMonth === 11;
-                const isUnlocked = isDecember && currentDay >= i;
+                // LÓGICA DE APERTURA EXACTA (6:00 AM)
+                let isUnlocked = false;
+
+                // 1. Tiene que ser Diciembre (Mes 11)
+                // 2. Y cumplirse una de estas condiciones:
+                //    a) El día actual es mayor que el día de la casilla (Días pasados, siempre abiertos)
+                //    b) Es el MISMO día de la casilla Y son las 6:00 AM o más
+                if (currentMonth === 11) {
+                    if (currentDay > i) {
+                        isUnlocked = true; // Día pasado -> Abierto
+                    } else if (currentDay === i && currentHour >= 6) {
+                        isUnlocked = true; // Mismo día, pasadas las 6 AM -> Abierto
+                    }
+                }
+                
+                // Nota: En Enero (mes 0), Febrero, etc., 'currentMonth' no será 11,
+                // así que por defecto todo aparecerá bloqueado fuera de temporada 
+                // (a menos que uses el modo desarrollador).
 
                 // Crear elemento
-                // Si está desbloqueado es un <a> (enlace), si no, es un <div>
                 const card = document.createElement(isUnlocked ? 'a' : 'div');
                 card.className = `magic-card relative rounded-xl h-40 flex flex-col items-center justify-center p-4 group transition-all duration-500 ${isUnlocked ? 'unlocked cursor-pointer' : 'locked'}`;
                 
                 if (isUnlocked) {
-                    // --- VINCULACIÓN REAL ---
-                    // Aquí es donde se asigna el enlace al archivo HTML correspondiente
                     card.href = `dia${i}.html`; 
                 }
 
