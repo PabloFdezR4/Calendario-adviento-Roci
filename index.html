@@ -48,11 +48,21 @@
     </script>
 
     <style>
-        /* Fondo de estrellas generado con CSS puro para evitar imágenes pesadas */
+        /* CORRECCIÓN MÓVIL: Fondo aplicado a HTML y Body fijo */
+        html {
+            background-color: #090A0F; /* Color oscuro base para el 'overscroll' */
+            height: 100%;
+        }
+
         body {
+            /* El gradiente se queda fijo en la pantalla */
             background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            background-attachment: fixed; 
+            background-size: cover;
+            min-height: 100%;
             overflow-x: hidden;
             color: white;
+            margin: 0;
         }
 
         .star {
@@ -102,7 +112,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen relative font-body">
+<body class="relative font-body">
 
     <!-- Fondo de estrellas (Generado por JS) -->
     <div id="stars-container" class="fixed inset-0 pointer-events-none z-0"></div>
