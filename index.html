@@ -299,7 +299,20 @@
                 card.className = `magic-card relative rounded-xl h-40 flex flex-col items-center justify-center p-4 group transition-all duration-500 ${isUnlocked ? 'unlocked cursor-pointer' : 'locked'}`;
                 
                 if (isUnlocked) {
-                    card.href = `dia${i}.html`; 
+                    // --- MODIFICACIÓN DEL DÍA 24 ---
+                    let urlDestino = `dia${i}.html`; // Comportamiento normal para días 1-23
+
+                    // Solo para el día 24
+                    if (i === 24) {
+                        // Si estamos en el día 24, pero es ANTES de las 12 del mediodía
+                        // (Nota: Si entra aquí es porque ya pasó el check de las 6:00 AM de arriba)
+                        if (currentDay === 24 && currentHour < 12) {
+                            urlDestino = 'dia24falso.html';
+                        }
+                        // Si es el día 24 a las 12:00 PM o más tarde (o día 25+), se queda como 'dia24.html'
+                    }
+
+                    card.href = urlDestino;
                 }
 
                 // Contenido interno
@@ -338,5 +351,3 @@
     </script>
 </body>
 </html>
-
-
