@@ -95,6 +95,18 @@
             box-shadow: 0 0 15px rgba(253, 224, 71, 0.3);
         }
 
+        /* Estilos específicos para el día 25 si está desbloqueado */
+        .magic-card.special-day.unlocked {
+            background: linear-gradient(135deg, rgba(46, 16, 101, 0.6) 0%, rgba(161, 98, 7, 0.3) 100%);
+            border: 2px solid #fde047;
+            box-shadow: 0 0 30px rgba(253, 224, 71, 0.4);
+        }
+        
+        .magic-card.special-day.unlocked:hover {
+            box-shadow: 0 0 50px rgba(253, 224, 71, 0.6);
+            transform: translateY(-5px) scale(1.01);
+        }
+
         /* Scrollbar personalizado */
         ::-webkit-scrollbar {
             width: 8px;
@@ -129,7 +141,7 @@
         </header>
 
         <!-- Grid del Calendario -->
-        <!-- Móvil: 1 columna. Tablet: 3 columnas. Desktop: 6 columnas (6x4=24) -->
+        <!-- Móvil: 1 columna. Tablet: 3 columnas. Desktop: 6 columnas -->
         <div id="calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-7xl mx-auto mb-12">
             <!-- Las tarjetas se generan aquí con JS -->
         </div>
@@ -170,7 +182,8 @@
 
     <script>
         // --- Configuración ---
-        const totalDays = 24;
+        // CAMBIO: Aumentado a 25 días
+        const totalDays = 25;
         const grid = document.getElementById('calendar-grid');
         
         // Estado del modo desarrollador
@@ -290,26 +303,26 @@
                     }
                 }
                 
-                // Nota: En Enero (mes 0), Febrero, etc., 'currentMonth' no será 11,
-                // así que por defecto todo aparecerá bloqueado fuera de temporada 
-                // (a menos que uses el modo desarrollador).
+                // CAMBIO: Definición de clases para el Día 25 (Especial)
+                // Si i es 25, añadimos 'special-day' y 'col-span-full' para que ocupe toda la fila
+                let specialClasses = '';
+                if (i === 25) {
+                    specialClasses = 'col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-6 special-day';
+                }
 
                 // Crear elemento
                 const card = document.createElement(isUnlocked ? 'a' : 'div');
-                card.className = `magic-card relative rounded-xl h-40 flex flex-col items-center justify-center p-4 group transition-all duration-500 ${isUnlocked ? 'unlocked cursor-pointer' : 'locked'}`;
+                card.className = `magic-card relative rounded-xl h-40 flex flex-col items-center justify-center p-4 group transition-all duration-500 ${specialClasses} ${isUnlocked ? 'unlocked cursor-pointer' : 'locked'}`;
                 
                 if (isUnlocked) {
                     // --- MODIFICACIÓN DEL DÍA 24 ---
-                    let urlDestino = `dia${i}.html`; // Comportamiento normal para días 1-23
+                    let urlDestino = `dia${i}.html`; // Comportamiento normal para días 1-23 y 25
 
-                    // Solo para el día 24
+                    // Solo para el día 24 (lógica original)
                     if (i === 24) {
-                        // Si estamos en el día 24, pero es ANTES de las 12 del mediodía
-                        // (Nota: Si entra aquí es porque ya pasó el check de las 6:00 AM de arriba)
                         if (currentDay === 24 && currentHour < 12) {
                             urlDestino = 'dia24falso.html';
                         }
-                        // Si es el día 24 a las 12:00 PM o más tarde (o día 25+), se queda como 'dia24.html'
                     }
 
                     card.href = urlDestino;
@@ -318,6 +331,10 @@
                 // Contenido interno
                 let contentHTML = '';
                 
+                // CAMBIO: Texto especial para el día 25
+                let footerText = "Ver Sorpresa";
+                if (i === 25) footerText = "¡Feliz Navidad!";
+
                 if (isUnlocked) {
                     contentHTML = `
                         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-spin-slow">
@@ -326,7 +343,7 @@
                         <span class="font-magic text-5xl text-gold-light drop-shadow-[0_0_10px_rgba(253,224,71,0.8)] group-hover:scale-110 transition-transform duration-300">
                             ${i}
                         </span>
-                        <span class="text-xs text-blue-200 mt-2 tracking-widest opacity-60 group-hover:opacity-100 uppercase">Ver Sorpresa</span>
+                        <span class="text-xs text-blue-200 mt-2 tracking-widest opacity-60 group-hover:opacity-100 uppercase font-bold">${footerText}</span>
                         <div class="absolute inset-0 border-2 border-transparent group-hover:border-gold-light/50 rounded-xl transition-all duration-300"></div>
                     `;
                 } else {
